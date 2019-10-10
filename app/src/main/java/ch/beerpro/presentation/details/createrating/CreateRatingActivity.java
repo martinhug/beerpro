@@ -208,11 +208,7 @@ public class CreateRatingActivity extends AppCompatActivity {
                 saveRating();
                 return true;
             case android.R.id.home:
-                if (getParentActivityIntent() == null) {
-                    onBackPressed();
-                } else {
-                    NavUtils.navigateUpFromSameTask(this);
-                }
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
