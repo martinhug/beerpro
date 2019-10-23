@@ -5,14 +5,14 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.request.RequestOptions;
 
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
-import ch.beerpro.domain.models.FridgeItem;
 
 public class DefaultBeerViewHolder<T extends OnDefaultBeerInteractionListener> extends RecyclerView.ViewHolder {
     @BindView(R.id.name)
@@ -28,7 +28,7 @@ public class DefaultBeerViewHolder<T extends OnDefaultBeerInteractionListener> e
     @BindView(R.id.numRatings)
     TextView numRatings;
 
-    public DefaultBeerViewHolder(View itemView) {
+    DefaultBeerViewHolder(View itemView) {
         super(itemView);
     }
 
