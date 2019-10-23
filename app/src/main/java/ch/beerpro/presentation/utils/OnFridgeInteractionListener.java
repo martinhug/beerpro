@@ -1,12 +1,8 @@
 package ch.beerpro.presentation.utils;
 
-import android.widget.ImageView;
-
-import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.FridgeItem;
 
-
-public interface OnFridgeInteractionListener {
+public interface OnFridgeInteractionListener extends OnDefaultBeerInteractionListener {
     void onFridgeAddClickedListener(FridgeItem fridgeItem);
     void onFridgeRemoveClickedListener(FridgeItem fridgeItem);
 }

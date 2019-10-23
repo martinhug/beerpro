@@ -26,7 +26,7 @@ public class FridgeBeerViewHolder extends DefaultBeerViewHolder{
     }
 
     public void bind(FridgeItem fridgeItem, Beer beer, OnFridgeInteractionListener listener) {
-        super.bind(beer, (OnDefaultBeerInteractionListener) listener);
+        super.bind(beer, listener);
         String suffix;
         if (fridgeItem.getAmount() == 1) {
             suffix = "Bier";
