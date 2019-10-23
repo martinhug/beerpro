@@ -22,16 +22,17 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:background="#ffeeeeee"
+                android:background="@color/listBackgroundColor"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/onTheListSince"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="@dimen/margin_Start"
+                android:layout_marginTop="@dimen/margin_Top"
                 android:text="auf der Wunschliste seit"
                 android:textSize="12sp"
                 android:textStyle="bold"

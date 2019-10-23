@@ -48,6 +48,8 @@ public class Beer implements Entity, Serializable {
         return this.category;
     }
 
+
+
     public String getPhoto() {
         return this.photo;
     }

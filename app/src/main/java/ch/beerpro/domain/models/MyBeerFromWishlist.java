@@ -14,6 +14,16 @@ public class MyBeerFromWishlist implements MyBeer {
     }
 
     @Override
+    public FridgeItem getFridgeiten() {
+        return null;
+    }
+
+    @Override
+    public void setFridgeItem(FridgeItem fridgeItem) {
+
+    }
+
+    @Override
     public String getBeerId() {
         return wish.getBeerId();
     }
