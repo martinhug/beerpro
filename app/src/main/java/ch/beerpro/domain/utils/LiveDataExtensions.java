@@ -4,9 +4,11 @@ import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeerCombine;
+import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
@@ -105,11 +107,13 @@ public class LiveDataExtensions {
             LiveData<List<Wish>> wishes,
             LiveData<List<Rating>> ratings,
             LiveData<List<FridgeItem>> fridgeItems,
+            LiveData<List<Price>> prices,
             LiveData<HashMap<String, Beer>> beers) {
         return new MediatorLiveData<MyBeerCombine>() {
             List<Wish> lastWishes = null;
             List<Rating> lastRatings = null;
             List<FridgeItem> lastFridgeItems = null;
+            List<Price> lastPrice = null;
             HashMap<String, Beer> lastBeers = null;
 
             {
@@ -124,6 +128,10 @@ public class LiveDataExtensions {
                     });
                     addSource(fridgeItems, (List<FridgeItem> fridgeItemList) -> {
                         lastFridgeItems = fridgeItemList;
+                        update();
+                    });
+                    addSource(prices, (List<Price> priceList) -> {
+                        lastPrice = priceList;
                         update();
                     });
                     addSource(beers, (HashMap<String, Beer> beerHashMap) -> {

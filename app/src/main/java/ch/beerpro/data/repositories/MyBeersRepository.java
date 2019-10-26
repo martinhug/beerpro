@@ -17,6 +17,7 @@ import ch.beerpro.domain.models.MyBeerCombine;
 import ch.beerpro.domain.models.MyBeerFromFridge;
 import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
+import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
@@ -62,9 +63,10 @@ public class MyBeersRepository {
 
 
     public LiveData<List<MyBeer>> getMyBeers(LiveData<List<Beer>> allBeers, LiveData<List<Wish>> myWishlist,
-                                             LiveData<List<Rating>> myRatings, LiveData<List<FridgeItem>> myFridgeItems) {
+                                             LiveData<List<Rating>> myRatings, LiveData<List<FridgeItem>> myFridgeItems,
+                                             LiveData<List<Price>> myPrices) {
 
-        return map(combineLatest(myWishlist, myRatings, myFridgeItems, map(allBeers, Entity::entitiesById)),
+        return map(combineLatest(myWishlist, myRatings, myFridgeItems, myPrices, map(allBeers, Entity::entitiesById)),
                 MyBeersRepository::getMyBeers);
     }
 

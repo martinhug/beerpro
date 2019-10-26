@@ -15,11 +15,13 @@ import ch.beerpro.data.repositories.CurrentUser;
 import ch.beerpro.data.repositories.FridgeRepository;
 import ch.beerpro.data.repositories.LikesRepository;
 import ch.beerpro.data.repositories.MyBeersRepository;
+import ch.beerpro.data.repositories.PriceRepository;
 import ch.beerpro.data.repositories.RatingsRepository;
 import ch.beerpro.data.repositories.WishlistRepository;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeer;
+import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
@@ -35,11 +37,13 @@ public class MainViewModel extends ViewModel implements CurrentUser {
     private final RatingsRepository ratingsRepository;
     private final WishlistRepository wishlistRepository;
     private final FridgeRepository fridgeRepository;
+    private final PriceRepository priceRepository;
 
     private final LiveData<List<Wish>> myWishlist;
     private final LiveData<List<Rating>> myRatings;
     private final LiveData<List<MyBeer>> myBeers;
     private final LiveData<List<FridgeItem>> myFridge;
+    private final LiveData<List<Price>> myPrice;
 
     public MainViewModel() {
         /*
@@ -50,6 +54,7 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         wishlistRepository = new WishlistRepository();
         ratingsRepository = new RatingsRepository();
         fridgeRepository = new FridgeRepository();
+        priceRepository = new PriceRepository();
         MyBeersRepository myBeersRepository = new MyBeersRepository();
 
         LiveData<List<Beer>> allBeers = beersRepository.getAllBeers();
@@ -58,7 +63,8 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         myWishlist = wishlistRepository.getMyWishlist(currentUserId);
         myRatings = ratingsRepository.getMyRatings(currentUserId);
         myFridge = fridgeRepository.getMyFridgeItems(currentUserId);
-        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge);
+        myPrice = priceRepository.getMyPriceList(currentUserId);
+        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrice);
 
 
         /*
@@ -86,6 +92,11 @@ public class MainViewModel extends ViewModel implements CurrentUser {
     public LiveData<List<FridgeItem>> getMyFridge() {
         return myFridge;
     }
+
+    public PriceRepository getPriceRepository() {
+        return priceRepository;
+    }
+
 
     public LiveData<List<String>> getBeerCategories() {
         return beersRepository.getBeerCategories();
