@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "522659385543-39m05527mps4qs9gfob8h67ipo2k5dp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.beerpro",
+            "certificate_hash": "aa9d0781f8cb4032b8958161c0164b3819950b73"
+          }
+        },
+        {
           "client_id": "522659385543-42nc0qdjnbmapd9un48smn0r4irdnu3f.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
