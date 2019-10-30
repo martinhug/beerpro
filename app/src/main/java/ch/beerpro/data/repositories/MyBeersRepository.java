@@ -14,6 +14,7 @@ import ch.beerpro.domain.models.Entity;
 import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.MyBeerCombine;
+import ch.beerpro.domain.models.MyBeerFromPrice;
 import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
 import ch.beerpro.domain.models.Price;
@@ -30,6 +31,7 @@ public class MyBeersRepository {
         List<Wish> wishes = input.getWishes();
         List<Rating> ratings = input.getRatings();
         List<FridgeItem> fridgeItems = input.getFridgeItems();
+        List<Price> priceList = input.getPriceList();
         HashMap<String, Beer> beers = input.getBeers();
         HashMap<String, MyBeer> resultHashMap = new HashMap<>();
 
@@ -43,6 +45,13 @@ public class MyBeersRepository {
             String beerId = rating.getBeerId();
             if (!beersAlreadyOnTheList.contains(beerId)) {
                 resultHashMap.put(beerId, new MyBeerFromRating(rating, beers.get(beerId)));
+                beersAlreadyOnTheList.add(beerId);
+            }
+        }
+        for (Price price : priceList) {
+            String beerId = price.getBeerId();
+            if (!beersAlreadyOnTheList.contains(beerId)) {
+                resultHashMap.put(beerId, new MyBeerFromPrice(price, beers.get(beerId)));
                 beersAlreadyOnTheList.add(beerId);
             }
         }

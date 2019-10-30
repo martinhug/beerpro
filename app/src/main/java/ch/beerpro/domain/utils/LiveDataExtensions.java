@@ -142,8 +142,8 @@ public class LiveDataExtensions {
             }
 
             private void update() {
-                if (lastWishes != null && lastRatings != null && lastFridgeItems != null && lastBeers != null) {
-                    this.setValue(new MyBeerCombine(lastBeers, lastWishes, lastRatings, lastFridgeItems));
+                if (lastWishes != null && lastRatings != null && lastFridgeItems != null && lastPrice != null && lastBeers != null) {
+                    this.setValue(new MyBeerCombine(lastBeers, lastWishes, lastRatings, lastFridgeItems, lastPrice));
                 }
             }
         };
