@@ -3,6 +3,7 @@ package ch.beerpro.presentation.profile.myfridge;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,9 +12,11 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,10 +24,9 @@ import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.presentation.details.DetailsActivity;
-import ch.beerpro.presentation.utils.OnFridgeInteractionListener;
 
+public class FridgeActivity extends AppCompatActivity implements OnFridgeItemInteractionListener {
 
-public class FridgeActivity extends AppCompatActivity implements OnFridgeInteractionListener {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -43,29 +45,33 @@ public class FridgeActivity extends AppCompatActivity implements OnFridgeInterac
         setContentView(R.layout.activity_my_fridge);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.title_activity_fridge));
 
-        model = ViewModelProviders.of(this).get(FridgeViewModel.class);
-        model.getMyFridgeListWithBeer().observe(this, this::updateFridge);
 
-//        layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
+        model = ViewModelProviders.of(this).get(FridgeViewModel.class);
+        model.getMyFridgeWithBeers().observe(this, this::updateFridge);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
         adapter = new FridgeRecyclerViewAdapter(this);
+
         recyclerView.setAdapter(adapter);
+
     }
 
-    private void updateFridge(List<Pair<FridgeItem, Beer>> pairs) {
-        adapter.submitList(pairs);
-        if (pairs.isEmpty()) {
+    private void updateFridge(List<Pair<FridgeItem, Beer>> entries) {
+        adapter.submitList(entries);
+        if (entries.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.GONE);
         } else {
-            emptyView.setVisibility(View.INVISIBLE);
+            emptyView.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -78,21 +84,27 @@ public class FridgeActivity extends AppCompatActivity implements OnFridgeInterac
         }
     }
 
-
-    public void onMoreClickedListener(ImageView photo, Beer beer) {
+    @Override
+    public void onMoreClickedListener(ImageView animationSource, Beer beer) {
         Intent intent = new Intent(this, DetailsActivity.class);
         intent.putExtra(DetailsActivity.ITEM_ID, beer.getId());
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, photo, "image");
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, animationSource, "image");
         startActivity(intent, options.toBundle());
     }
 
     @Override
-    public void onFridgeAddClickedListener(FridgeItem fridgeItem) {
-        model.addToFridge(fridgeItem);
+    public void onFridgeItemClickedListener(Beer beer) {
+        model.removeItemFromFridge(beer.getId());
+        new Handler().postDelayed(() -> updateFridgeLayout(), 500);
     }
 
     @Override
-    public void onFridgeRemoveClickedListener(FridgeItem fridgeItem) {
-        model.removeFromFridge(fridgeItem);
+    public void onFridgeItemClickedListener2(Beer beer) {
+        model.addItemToFridge(beer.getId());
+        new Handler().postDelayed(() -> updateFridgeLayout(), 500);
+    }
+
+    private void updateFridgeLayout() {
+        model.getMyFridgeWithBeers().observe(this, this::updateFridge);
     }
 }

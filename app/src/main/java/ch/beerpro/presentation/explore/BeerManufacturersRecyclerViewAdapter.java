@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ch.beerpro.R;
+import ch.beerpro.presentation.MainActivity;
 import ch.beerpro.presentation.utils.BackgroundImageProvider;
 import ch.beerpro.presentation.utils.StringDiffItemCallback;
 
@@ -25,8 +26,9 @@ public class BeerManufacturersRecyclerViewAdapter
         extends ListAdapter<String, BeerManufacturersRecyclerViewAdapter.ViewHolder> {
 
     private final BeerManufacturersFragment.OnItemSelectedListener listener;
+    private Context mContext;
 
-    public BeerManufacturersRecyclerViewAdapter(BeerManufacturersFragment.OnItemSelectedListener listener) {
+    BeerManufacturersRecyclerViewAdapter(BeerManufacturersFragment.OnItemSelectedListener listener) {
         super(new StringDiffItemCallback());
         this.listener = listener;
     }
@@ -34,6 +36,7 @@ public class BeerManufacturersRecyclerViewAdapter
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        mContext = parent.getContext();
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.fragment_explore_beer_manufacturers_card, parent, false);
         return new ViewHolder(view);
@@ -62,7 +65,11 @@ public class BeerManufacturersRecyclerViewAdapter
             Context resources = itemView.getContext();
             imageView.setImageDrawable(BackgroundImageProvider.getBackgroundImage(resources, position + 10));
             if (listener != null) {
-                itemView.setOnClickListener(v -> listener.onBeerManufacturerSelected(item));
+                itemView.setOnClickListener(v -> {
+                    if (mContext instanceof MainActivity) {
+                        ((MainActivity) mContext).onBeerManufacturerSelected(item);
+                    }
+                });
             }
         }
     }

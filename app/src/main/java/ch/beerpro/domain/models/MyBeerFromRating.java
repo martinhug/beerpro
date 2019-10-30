@@ -13,15 +13,6 @@ public class MyBeerFromRating implements MyBeer {
         this.beer = beer;
     }
 
-    @Override
-    public FridgeItem getFridgeiten() {
-        return null;
-    }
-
-    @Override
-    public void setFridgeItem(FridgeItem fridgeItem) {
-
-    }
 
     @Override
     public String getBeerId() {

@@ -6,16 +6,19 @@ import androidx.lifecycle.LiveData;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.Entity;
 import ch.beerpro.domain.models.FridgeItem;
+import ch.beerpro.domain.utils.FirestoreQueryLiveData;
 import ch.beerpro.domain.utils.FirestoreQueryLiveDataArray;
 
 import static androidx.lifecycle.Transformations.map;
@@ -23,9 +26,73 @@ import static androidx.lifecycle.Transformations.switchMap;
 import static ch.beerpro.domain.utils.LiveDataExtensions.combineLatest;
 
 public class FridgeRepository {
+
+
     private static LiveData<List<FridgeItem>> getFridgeItemsByUser(String userId) {
-        return new FirestoreQueryLiveDataArray<>(FirebaseFirestore.getInstance().collection(FridgeItem.COLLECTION).whereEqualTo(FridgeItem.FIELD_USER_ID, userId),
+        return new FirestoreQueryLiveDataArray<>(FirebaseFirestore.getInstance().collection(FridgeItem.COLLECTION)
+                .orderBy(FridgeItem.FIELD_AMOUNT, Query.Direction.DESCENDING).whereEqualTo(FridgeItem.FIELD_USER_ID, userId),
                 FridgeItem.class);
+    }
+
+    private static LiveData<FridgeItem> getUserFridgeFor(Pair<String, Beer> input) {
+        String userId = input.first;
+        Beer beer = input.second;
+        DocumentReference document = FirebaseFirestore.getInstance().collection(FridgeItem.COLLECTION)
+                .document(FridgeItem.generateId(userId, beer.getId()));
+        return new FirestoreQueryLiveData<>(document, FridgeItem.class);
+    }
+
+    public Task<Void> addUserFridgeItem(String userId, String itemId) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String fridgeItemId = FridgeItem.generateId(userId, itemId);
+
+        DocumentReference fridgeItemEntryQuery = db.collection(FridgeItem.COLLECTION).document(fridgeItemId);
+
+        return fridgeItemEntryQuery.get().continueWithTask(task -> {
+            if (task.isSuccessful() && Objects.requireNonNull(task.getResult()).exists()) {
+
+                DocumentSnapshot doc = task.getResult();
+                String amount = doc.getString("amount");
+                assert amount != null;
+                int amountInt = Integer.parseInt(amount);
+                amountInt++;
+
+                return fridgeItemEntryQuery.set(new FridgeItem(userId, itemId, Integer.toString(amountInt)));
+            } else if (task.isSuccessful()) {
+                return fridgeItemEntryQuery.set(new FridgeItem(userId, itemId, "1"));
+            } else {
+                throw Objects.requireNonNull(task.getException());
+            }
+        });
+    }
+
+    public Task<Void> removeUserFridgeItem(String userId, String itemId) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String fridgeItemId = FridgeItem.generateId(userId, itemId);
+
+        DocumentReference fridgeItemEntryQuery = db.collection(FridgeItem.COLLECTION).document(fridgeItemId);
+
+        return fridgeItemEntryQuery.get().continueWithTask(task -> {
+            if (task.isSuccessful() && Objects.requireNonNull(task.getResult()).exists()) {
+
+                DocumentSnapshot doc = task.getResult();
+                String amount = doc.getString("amount");
+                assert amount != null;
+                int amountInt = Integer.parseInt(amount);
+                amountInt--;
+                if (amountInt == 0) {
+                    return fridgeItemEntryQuery.delete();
+                } else {
+                    return fridgeItemEntryQuery.set(new FridgeItem(userId, itemId, Integer.toString(amountInt)));
+                }
+            } else {
+                throw Objects.requireNonNull(task.getException());
+            }
+        });
     }
 
     public LiveData<List<Pair<FridgeItem, Beer>>> getMyFridgeWithBeers(LiveData<String> currentUserId,
@@ -47,40 +114,12 @@ public class FridgeRepository {
         return switchMap(currentUserId, FridgeRepository::getFridgeItemsByUser);
     }
 
-    public Task<Void> addFridgeItem(String userId, String itemId) {
-        return addFridgeItem(userId, itemId, 1);
+
+    public LiveData<FridgeItem> getMyFridgeItemForBeer(LiveData<String> currentUserId, LiveData<Beer> beer) {
+
+
+        return switchMap(combineLatest(currentUserId, beer), FridgeRepository::getUserFridgeFor);
     }
 
-    public Task<Void> addFridgeItem(String userId, String itemId, int amount) {
-        return updateAmount(userId, itemId, amount);
-    }
 
-    public Task<Void> removeFridgeItem(String userId, String itemId) {
-        return removeFridgeItem(userId, itemId, 1);
-    }
-
-    public Task<Void> removeFridgeItem(String userId, String itemId, int amount) {
-        return updateAmount(userId, itemId, -amount);
-    }
-
-    private Task<Void> updateAmount(String userId, String itemId, int amount) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String fridgeItemId = FridgeItem.generateId(userId, itemId);
-        DocumentReference fridgeItemQuery = db.collection(FridgeItem.COLLECTION).document(fridgeItemId);
-
-        return fridgeItemQuery.get().continueWithTask(task -> {
-            if (task.isSuccessful() && task.getResult().exists()) {
-                long currentAmount = task.getResult().getLong(FridgeItem.FIELD_AMOUNT);
-                if (currentAmount + amount == 0) {
-                    return fridgeItemQuery.delete();
-                }
-                fridgeItemQuery.update(FridgeItem.FIELD_AMOUNT, currentAmount + amount);
-                return fridgeItemQuery.update(FridgeItem.FIELD_CREATION_DATE, new Date());
-            } else if (task.isSuccessful()) {
-                return fridgeItemQuery.set(new FridgeItem(userId, itemId, amount, new Date()));
-            } else {
-                throw task.getException();
-            }
-        });
-    }
 }

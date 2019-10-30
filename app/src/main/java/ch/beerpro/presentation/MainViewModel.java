@@ -89,7 +89,7 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         return myWishlist;
     }
 
-    public LiveData<List<FridgeItem>> getMyFridge() {
+    public LiveData<List<FridgeItem>> getMyFridgeItems() {
         return myFridge;
     }
 

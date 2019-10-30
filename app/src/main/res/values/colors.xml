@@ -6,4 +6,6 @@
     <color name="windowBackgroundColor">#fffde7</color>
     <color name="colorAccent">#5d4037</color>
     <color name="listBackgroundColor">#ffeeeeee</color>
+    <color name="textColor">@android:color/darker_gray</color>
+    <color name="textToolbar">@color/colorAccent</color>
 </resources>

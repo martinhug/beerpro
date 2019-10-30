@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ch.beerpro.R;
+import ch.beerpro.presentation.MainActivity;
 import ch.beerpro.presentation.utils.BackgroundImageProvider;
 import ch.beerpro.presentation.utils.StringDiffItemCallback;
 
@@ -36,8 +37,10 @@ public class BeerCategoriesRecyclerViewAdapter
      * when an entry was clicked. This listener is passed from the {@link BeerCategoriesFragment}.
      */
     private final BeerCategoriesFragment.OnItemSelectedListener listener;
+    private Context mContext;
 
-    public BeerCategoriesRecyclerViewAdapter(BeerCategoriesFragment.OnItemSelectedListener listener) {
+
+    BeerCategoriesRecyclerViewAdapter(BeerCategoriesFragment.OnItemSelectedListener listener) {
         /*
          * Whenever a new list is submitted to the ListAdapter, it needs to compute the set of changes in the list.
          * for example, a new string might have been added to the front of the list. in that case, the ListAdapter
@@ -67,6 +70,7 @@ public class BeerCategoriesRecyclerViewAdapter
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        mContext = parent.getContext();
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.fragment_explore_beer_categories_card, parent, false);
         return new ViewHolder(view);
@@ -123,7 +127,11 @@ public class BeerCategoriesRecyclerViewAdapter
             Context resources = itemView.getContext();
             imageView.setImageDrawable(BackgroundImageProvider.getBackgroundImage(resources, position));
             if (listener != null) {
-                itemView.setOnClickListener(v -> listener.onBeerCategorySelected(item));
+                itemView.setOnClickListener(v -> {
+                    if (mContext instanceof MainActivity) {
+                        ((MainActivity) mContext).onBeerCategorySelected(item);
+                    }
+                });
             }
         }
     }

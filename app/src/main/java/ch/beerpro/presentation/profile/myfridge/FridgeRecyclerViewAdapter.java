@@ -4,24 +4,36 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.request.RequestOptions;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.FridgeItem;
-import ch.beerpro.presentation.utils.FridgeBeerViewHolder;
 import ch.beerpro.presentation.utils.EntityPairDiffItemCallback;
-import ch.beerpro.presentation.utils.OnFridgeInteractionListener;
+
 
 public class FridgeRecyclerViewAdapter extends ListAdapter<Pair<FridgeItem, Beer>, FridgeRecyclerViewAdapter.ViewHolder> {
-    private static final DiffUtil.ItemCallback<Pair<FridgeItem, Beer>> DIFF_CALLBACK = new EntityPairDiffItemCallback<>();
-    private final OnFridgeInteractionListener listener;
 
-    public FridgeRecyclerViewAdapter(OnFridgeInteractionListener listener) {
+    private static final String TAG = "FridgeRecyclerViewAda";
+
+    private static final DiffUtil.ItemCallback<Pair<FridgeItem, Beer>> DIFF_CALLBACK = new EntityPairDiffItemCallback<>();
+
+    private final OnFridgeItemInteractionListener listener;
+
+    FridgeRecyclerViewAdapter(OnFridgeItemInteractionListener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
     }
@@ -35,20 +47,60 @@ public class FridgeRecyclerViewAdapter extends ListAdapter<Pair<FridgeItem, Beer
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         Pair<FridgeItem, Beer> item = getItem(position);
         holder.bind(item.first, item.second, listener);
     }
 
-    class ViewHolder extends FridgeBeerViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
+        @BindView(R.id.name)
+        TextView name;
+
+        @BindView(R.id.manufacturer)
+        TextView manufacturer;
+
+        @BindView(R.id.category)
+        TextView category;
+
+        @BindView(R.id.photo)
+        ImageView photo;
+
+        @BindView(R.id.ratingBar)
+        RatingBar ratingBar;
+
+        @BindView(R.id.numRatings)
+        TextView numRatings;
+
+        @BindView(R.id.amount)
+        TextView amount;
+
+        @BindView(R.id.removeFromFridge)
+        Button decrease;
+
+        @BindView(R.id.addToFridge)
+        Button increase;
+
+        ViewHolder(View view) {
+            super(view);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(FridgeItem fridgeItem, Beer beer, OnFridgeInteractionListener listener) {
-            super.bind(fridgeItem, beer, listener);
+        void bind(FridgeItem fridgeItem, Beer item, OnFridgeItemInteractionListener listener) {
+            name.setText(item.getName());
+            manufacturer.setText(item.getManufacturer());
+            category.setText(item.getCategory());
+            name.setText(item.getName());
+            GlideApp.with(itemView).load(item.getPhoto()).apply(new RequestOptions().override(240, 240).centerInside())
+                    .into(photo);
+            ratingBar.setNumStars(5);
+            ratingBar.setRating(item.getAvgRating());
+            numRatings.setText(itemView.getResources().getString(R.string.fmt_num_ratings, item.getNumRatings()));
+            itemView.setOnClickListener(v -> listener.onMoreClickedListener(photo, item));
+            amount.setText(fridgeItem.getAmount());
+            decrease.setOnClickListener(v -> listener.onFridgeItemClickedListener(item));
+            increase.setOnClickListener(v -> listener.onFridgeItemClickedListener2(item));
         }
+
     }
 }

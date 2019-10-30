@@ -57,7 +57,7 @@ public class DetailsViewModel extends ViewModel implements CurrentUser {
         currentUserId.setValue(getCurrentUser().getUid());
     }
 
-    public LiveData<List<Price>> getPricesForBeer() {
+    LiveData<List<Price>> getPricesForBeer() {
         return pricesForBeer;
     }
 
@@ -73,7 +73,7 @@ public class DetailsViewModel extends ViewModel implements CurrentUser {
         this.beerId.setValue(beerId);
     }
 
-    public void toggleLike(Rating rating) {
+    void toggleLike(Rating rating) {
         likesRepository.toggleLike(rating);
     }
 
@@ -81,8 +81,8 @@ public class DetailsViewModel extends ViewModel implements CurrentUser {
         return wishlistRepository.toggleUserWishlistItem(getCurrentUser().getUid(), itemId);
     }
 
-    public void addToFridge(String beerId) {
-        fridgeRepository.addFridgeItem(getCurrentUser().getUid(), beerId);
+    void addToFridge(String beerId) {
+        fridgeRepository.addUserFridgeItem(getCurrentUser().getUid(), beerId);
     }
 
     public LiveData<Beer> getBeer() {

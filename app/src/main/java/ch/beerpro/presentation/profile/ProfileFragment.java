@@ -23,11 +23,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
+import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.presentation.MainViewModel;
 import ch.beerpro.presentation.profile.mybeers.MyBeersActivity;
+import ch.beerpro.presentation.profile.myfridge.FridgeActivity;
 import ch.beerpro.presentation.profile.myratings.MyRatingsActivity;
 import ch.beerpro.presentation.profile.mywishlist.WishlistActivity;
 
@@ -73,6 +75,7 @@ public class ProfileFragment extends Fragment {
         model.getMyWishlist().observe(this, this::updateWishlistCount);
         model.getMyRatings().observe(this, this::updateRatingsCount);
         model.getMyBeers().observe(this, this::updateMyBeersCount);
+        model.getMyFridgeItems().observe(this, this::updateFridgeCount);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -92,19 +95,25 @@ public class ProfileFragment extends Fragment {
     }
 
     @OnClick(R.id.myRatings)
-    public void handleMyRatingsClick(View view) {
+    void handleMyRatingsClick(View view) {
         Intent intent = new Intent(getActivity(), MyRatingsActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.myWishlist)
-    public void handleMyWishlistClick(View view) {
+    void handleMyWishlistClick(View view) {
         Intent intent = new Intent(getActivity(), WishlistActivity.class);
         startActivity(intent);
     }
 
+    @OnClick(R.id.myFridge)
+    void handleMyFridgeClick(View view) {
+        Intent intent = new Intent(getActivity(), FridgeActivity.class);
+        startActivity(intent);
+    }
+
     @OnClick(R.id.myBeers)
-    public void handleMyBeersClick(View view) {
+    void handleMyBeersClick(View view) {
         Intent intent = new Intent(getActivity(), MyBeersActivity.class);
         startActivity(intent);
     }
@@ -117,4 +126,11 @@ public class ProfileFragment extends Fragment {
         myWishlistCount.setText(String.valueOf(wishes.size()));
     }
 
+    private void updateFridgeCount(List<FridgeItem> fridgeItem) {
+        int amountInFridge = 0;
+        for (FridgeItem item : fridgeItem) {
+            amountInFridge += Integer.parseInt(item.getAmount());
+        }
+        myFridgeCount.setText(String.valueOf(amountInFridge));
+    }
 }

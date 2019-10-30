@@ -15,12 +15,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ch.beerpro.R;
 import ch.beerpro.presentation.explore.BeerCategoriesFragment;
 import ch.beerpro.presentation.explore.BeerManufacturersFragment;
 import ch.beerpro.presentation.explore.ExploreFragment;
+import ch.beerpro.presentation.explore.search.SearchActivity;
 import ch.beerpro.presentation.profile.ProfileFragment;
 import ch.beerpro.presentation.ratings.RatingsFragment;
 import ch.beerpro.presentation.splash.SplashScreenActivity;
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity
          * The following ceremony is need to have the app logo set as the home button.
          * */
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setLogo(R.drawable.beer_glass_icon);
 
@@ -76,9 +79,9 @@ public class MainActivity extends AppCompatActivity
         adapter.addFragment(new ProfileFragment());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_search_black_24dp);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_people_black_24dp);
-        tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_black_24dp);
+        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(R.drawable.ic_search_black_24dp);
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setIcon(R.drawable.ic_people_black_24dp);
+        Objects.requireNonNull(tabLayout.getTabAt(2)).setIcon(R.drawable.ic_person_black_24dp);
 
         /*
          * We want to change the title of the activity depending on the selected fragment. We can do this by
@@ -91,13 +94,13 @@ public class MainActivity extends AppCompatActivity
                 super.onTabSelected(tab);
                 switch (tab.getPosition()) {
                     case 0:
-                        getSupportActionBar().setTitle("Entdecken");
+                        Objects.requireNonNull(getSupportActionBar()).setTitle("Entdecken");
                         break;
                     case 1:
-                        getSupportActionBar().setTitle("Bewertungen");
+                        Objects.requireNonNull(getSupportActionBar()).setTitle("Bewertungen");
                         break;
                     case 2:
-                        getSupportActionBar().setTitle("Mein Profil");
+                        Objects.requireNonNull(getSupportActionBar()).setTitle("Mein Profil");
                         break;
                 }
             }
@@ -132,11 +135,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBeerCategorySelected(String name) {
-        // TODO implement
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.putExtra("searchValue", "ba::" + name);
+        startActivity(intent);
     }
 
     @Override
     public void onBeerManufacturerSelected(String name) {
-        // TODO implement
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.putExtra("searchValue", "br::" + name);
+        startActivity(intent);
     }
 }

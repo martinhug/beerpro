@@ -14,7 +14,6 @@ import ch.beerpro.domain.models.Entity;
 import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.MyBeerCombine;
-import ch.beerpro.domain.models.MyBeerFromFridge;
 import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
 import ch.beerpro.domain.models.Price;
@@ -25,6 +24,7 @@ import static androidx.lifecycle.Transformations.map;
 import static ch.beerpro.domain.utils.LiveDataExtensions.combineLatest;
 
 public class MyBeersRepository {
+
 
     private static List<MyBeer> getMyBeers(MyBeerCombine input) {
         List<Wish> wishes = input.getWishes();
@@ -46,16 +46,6 @@ public class MyBeersRepository {
                 beersAlreadyOnTheList.add(beerId);
             }
         }
-        for (FridgeItem fridgeItem : fridgeItems) {
-            String beerId = fridgeItem.getBeerId();
-            if (!beersAlreadyOnTheList.contains(beerId)) {
-                resultHashMap.put(beerId, new MyBeerFromFridge(fridgeItem, beers.get(beerId)));
-            } else {
-                MyBeer myBeer = resultHashMap.get(beerId);
-                myBeer.setFridgeItem(fridgeItem);
-                resultHashMap.put(beerId, myBeer);
-            }
-        }
         ArrayList<MyBeer> result = new ArrayList<>(resultHashMap.values());
         Collections.sort(result, (r1, r2) -> r2.getDate().compareTo(r1.getDate()));
         return result;
@@ -69,5 +59,6 @@ public class MyBeersRepository {
         return map(combineLatest(myWishlist, myRatings, myFridgeItems, myPrices, map(allBeers, Entity::entitiesById)),
                 MyBeersRepository::getMyBeers);
     }
+
 
 }

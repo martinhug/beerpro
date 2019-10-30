@@ -36,9 +36,6 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
 
     private final WishlistRepository wishlistRepository;
     private final LiveData<List<MyBeer>> myFilteredBeers;
-    private final FridgeRepository fridgeRepository;
-    private final PriceRepository priceRepository;
-
 
     public MyBeersViewModel() {
 
@@ -46,17 +43,17 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
         BeersRepository beersRepository = new BeersRepository();
         MyBeersRepository myBeersRepository = new MyBeersRepository();
         RatingsRepository ratingsRepository = new RatingsRepository();
-        fridgeRepository = new FridgeRepository();
-        priceRepository = new PriceRepository();
+        PriceRepository priceRepository = new PriceRepository();
+        FridgeRepository fridgeRepository = new FridgeRepository();
 
         LiveData<List<Beer>> allBeers = beersRepository.getAllBeers();
         MutableLiveData<String> currentUserId = new MutableLiveData<>();
         LiveData<List<Wish>> myWishlist = wishlistRepository.getMyWishlist(currentUserId);
         LiveData<List<Rating>> myRatings = ratingsRepository.getMyRatings(currentUserId);
-        LiveData<List<FridgeItem>> myFridgeItems = fridgeRepository.getMyFridgeItems(currentUserId);
+        LiveData<List<FridgeItem>> myFridge = fridgeRepository.getMyFridgeItems(currentUserId);
         LiveData<List<Price>> myPrices = priceRepository.getMyPriceList(currentUserId);
 
-        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridgeItems, myPrices);
+        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrices);
 
         myFilteredBeers = map(zip(searchTerm, myBeers), MyBeersViewModel::filter);
 
@@ -81,7 +78,7 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
         return filtered;
     }
 
-    public LiveData<List<MyBeer>> getMyFilteredBeers() {
+    LiveData<List<MyBeer>> getMyFilteredBeers() {
         return myFilteredBeers;
     }
 

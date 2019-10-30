@@ -1,5 +1,6 @@
 package ch.beerpro.presentation.details;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -36,6 +38,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
+import ch.beerpro.data.repositories.FridgeRepository;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
@@ -100,7 +103,7 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         getWindow().getDecorView()
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -136,10 +139,15 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     @OnClick(R.id.actionsButton)
     public void showBottomSheetDialog() {
-        View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
+        @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         dialog.show();
+
+        Button addToFridge = dialog.findViewById(R.id.addToFridge);
+        FridgeRepository fridgeRepository = new FridgeRepository();
+        assert addToFridge != null;
+        addToFridge.setOnClickListener(viewNew -> fridgeRepository.addUserFridgeItem(model.getCurrentUser().getUid(), beerId));
 
         View addPrice = view.findViewById(R.id.addPrice);
         addPrice.setOnClickListener(getPriceListener());
@@ -183,9 +191,7 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         new AlertDialog.Builder(context)
                 .setTitle("Add price")
                 .setView(price)
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    model.savePrice(beerId, Float.parseFloat(price.getText().toString()));
-                })
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> model.savePrice(beerId, Float.parseFloat(price.getText().toString())))
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
@@ -197,7 +203,7 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     @OnClick(R.id.wishlist)
     public void onWishClickedListener(View view) {
-        model.toggleItemInWishlist(model.getBeer().getValue().getId());
+        model.toggleItemInWishlist(Objects.requireNonNull(model.getBeer().getValue()).getId());
         /*
          * We won't get an update from firestore when the wish is removed, so we need to reset the UI state ourselves.
          * */
