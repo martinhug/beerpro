@@ -5,6 +5,7 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -20,6 +21,7 @@ import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -50,6 +52,7 @@ import static ch.beerpro.presentation.utils.DrawableHelpers.setDrawableTint;
 
 public class DetailsActivity extends AppCompatActivity implements OnRatingLikedListener {
 
+    public static final String NOTE_ID = "note_id";
     public static final String ITEM_ID = "item_id";
     private static final String TAG = "DetailsActivity";
     @BindView(R.id.toolbar)
@@ -91,6 +94,15 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
     @BindView(R.id.averagePrice)
     TextView averagePrice;
 
+    @BindView(R.id.noteView)
+    CardView noteView;
+
+    @BindView(R.id.noteLabel)
+    TextView noteLabel;
+
+    @BindView(R.id.noteText)
+    EditText noteText;
+
     private RatingsRecyclerViewAdapter adapter;
 
     private DetailsViewModel model;
@@ -127,6 +139,33 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
         recyclerView.setAdapter(adapter);
         addRatingBar.setOnRatingBarChangeListener(this::addNewRating);
+        SharedPreferences settings = getSharedPreferences(NOTE_ID, MODE_PRIVATE);
+        setNoteText(settings, noteText);
+
+    }
+
+
+    private void showNoteDialog(Context context) {
+        SharedPreferences settings = getSharedPreferences(NOTE_ID, MODE_PRIVATE);
+        EditText editNote = new EditText(context);
+        editNote.setHint("Private Notiz");
+        setNoteText(settings, editNote);
+        new AlertDialog.Builder(context)
+                .setTitle("Private Notiz")
+                .setView(editNote)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(beerId, editNote.getText().toString());
+                    editor.apply();
+
+                    setNoteText(settings, noteText);
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
+
+    private void setNoteText(SharedPreferences settings, EditText editText) {
+        editText.setText(settings.getString(beerId, null));
     }
 
     private void addNewRating(RatingBar ratingBar, float v, boolean b) {
@@ -150,7 +189,10 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         addToFridge.setOnClickListener(viewNew -> fridgeRepository.addUserFridgeItem(model.getCurrentUser().getUid(), beerId));
 
         View addPrice = view.findViewById(R.id.addPrice);
-        addPrice.setOnClickListener(getPriceListener());
+        addPrice.setOnClickListener(priceView -> showPriceDialog(priceView.getContext()));
+
+        View addPrivateNote = view.findViewById(R.id.addPrivateNote);
+        addPrivateNote.setOnClickListener(privateNoteView -> showNoteDialog(privateNoteView.getContext()));
     }
 
     private void updateBeer(Beer item) {
@@ -179,19 +221,15 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         adapter.submitList(new ArrayList<>(ratings));
     }
 
-    private View.OnClickListener getPriceListener() {
-        return view -> showPriceDialog(view.getContext());
-    }
-
     private void showPriceDialog(Context context) {
-        EditText price = new EditText(context);
-        price.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-        price.setHint("Price");
-        price.setFilters(new InputFilter[]{new PriceFieldInputFilter()});
+        EditText editPrice = new EditText(context);
+        editPrice.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+        editPrice.setHint("Price");
+        editPrice.setFilters(new InputFilter[]{new PriceFieldInputFilter()});
         new AlertDialog.Builder(context)
                 .setTitle("Add price")
-                .setView(price)
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> model.savePrice(beerId, Float.parseFloat(price.getText().toString())))
+                .setView(editPrice)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> model.savePrice(beerId, Float.parseFloat(editPrice.getText().toString())))
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
