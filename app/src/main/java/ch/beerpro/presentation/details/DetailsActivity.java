@@ -137,6 +137,36 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         startActivity(intent, options.toBundle());
     }
 
+    @OnClick(R.id.share)
+    public void onShareListener(View view) {
+
+        Beer beer = model.getBeer().getValue();
+
+        Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+
+        shareIntent.setType("text/plain");
+
+        String title = "Gönn dir eine Abkühlung mit Beerpro: " + beer.getName();
+
+        String shareBody = "Probier das Bier: " + beer.getName() + "!\n";
+
+        if (beer.getNumRatings() > 0) {
+            if (beer.getNumRatings() > 1) {
+                shareBody += beer.getNumRatings() + " Personen haben dieses Bier mit " + Math.round(beer.getAvgRating()) + " Sternen bewertet!" + "\n";
+            } else {
+                shareBody += "Eine Person hat dieses Bier mit " + Math.round(beer.getAvgRating()) + " Sternen bewertet!" + "\n";
+            }
+
+        }
+        shareBody += beer.getManufacturer() + "\n";
+        shareBody += beer.getCategory() + "\n";
+        shareBody += "Ich kann das Bier nur empfehlen!";
+
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
+        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(shareIntent, "Teile das Bier mit.."));
+    }
+
     @OnClick(R.id.actionsButton)
     public void showBottomSheetDialog() {
         @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
