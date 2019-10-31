@@ -1,16 +1,18 @@
 package ch.beerpro.presentation.profile.mybeers;
 
+import android.app.Application;
 import android.util.Pair;
 
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ch.beerpro.data.repositories.BeersRepository;
 import ch.beerpro.data.repositories.CurrentUser;
@@ -26,10 +28,12 @@ import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
+import static android.content.Context.MODE_PRIVATE;
 import static androidx.lifecycle.Transformations.map;
 import static ch.beerpro.domain.utils.LiveDataExtensions.zip;
+import static ch.beerpro.presentation.details.DetailsActivity.NOTE_ID;
 
-public class MyBeersViewModel extends ViewModel implements CurrentUser {
+public class MyBeersViewModel extends AndroidViewModel implements CurrentUser {
 
     private static final String TAG = "MyBeersViewModel";
     private final MutableLiveData<String> searchTerm = new MutableLiveData<>();
@@ -37,7 +41,8 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
     private final WishlistRepository wishlistRepository;
     private final LiveData<List<MyBeer>> myFilteredBeers;
 
-    public MyBeersViewModel() {
+    public MyBeersViewModel(Application application) {
+        super(application);
 
         wishlistRepository = new WishlistRepository();
         BeersRepository beersRepository = new BeersRepository();
@@ -53,7 +58,10 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
         LiveData<List<FridgeItem>> myFridge = fridgeRepository.getMyFridgeItems(currentUserId);
         LiveData<List<Price>> myPrices = priceRepository.getMyPriceList(currentUserId);
 
-        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrices);
+        Map<String, ?> privateNotes = application.getSharedPreferences(NOTE_ID, MODE_PRIVATE).getAll();
+
+        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrices, privateNotes);
+
 
         myFilteredBeers = map(zip(searchTerm, myBeers), MyBeersViewModel::filter);
 

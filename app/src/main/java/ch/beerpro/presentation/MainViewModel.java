@@ -1,14 +1,16 @@
 package ch.beerpro.presentation;
 
+import android.app.Application;
 import android.util.Pair;
 
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.tasks.Task;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.beerpro.data.repositories.BeersRepository;
 import ch.beerpro.data.repositories.CurrentUser;
@@ -25,10 +27,13 @@ import ch.beerpro.domain.models.Price;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
+import static android.content.Context.MODE_PRIVATE;
+import static ch.beerpro.presentation.details.DetailsActivity.NOTE_ID;
+
 /**
  * This is the viewmodel for the {@link MainActivity}, which is also used by the three pages/fragments contained in it.
  */
-public class MainViewModel extends ViewModel implements CurrentUser {
+public class MainViewModel extends AndroidViewModel implements CurrentUser {
 
     private static final String TAG = "MainViewModel";
 
@@ -45,7 +50,8 @@ public class MainViewModel extends ViewModel implements CurrentUser {
     private final LiveData<List<FridgeItem>> myFridge;
     private final LiveData<List<Price>> myPrice;
 
-    public MainViewModel() {
+    public MainViewModel(Application application) {
+        super(application);
         /*
          * TODO We should really be injecting these!
          */
@@ -64,7 +70,9 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         myRatings = ratingsRepository.getMyRatings(currentUserId);
         myFridge = fridgeRepository.getMyFridgeItems(currentUserId);
         myPrice = priceRepository.getMyPriceList(currentUserId);
-        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrice);
+        Map<String, ?> privateNotes = application.getSharedPreferences(NOTE_ID, MODE_PRIVATE).getAll();
+
+        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings, myFridge, myPrice, privateNotes);
 
 
         /*

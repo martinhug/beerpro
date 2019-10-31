@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.beerpro.domain.models.Beer;
@@ -15,6 +16,7 @@ import ch.beerpro.domain.models.FridgeItem;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.MyBeerCombine;
 import ch.beerpro.domain.models.MyBeerFromPrice;
+import ch.beerpro.domain.models.MyBeerFromPrivateNote;
 import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
 import ch.beerpro.domain.models.Price;
@@ -27,7 +29,7 @@ import static ch.beerpro.domain.utils.LiveDataExtensions.combineLatest;
 public class MyBeersRepository {
 
 
-    private static List<MyBeer> getMyBeers(MyBeerCombine input) {
+    private static List<MyBeer> getMyBeers(MyBeerCombine input, Map<String, ?> privateNotes) {
         List<Wish> wishes = input.getWishes();
         List<Rating> ratings = input.getRatings();
         List<FridgeItem> fridgeItems = input.getFridgeItems();
@@ -55,6 +57,15 @@ public class MyBeersRepository {
                 beersAlreadyOnTheList.add(beerId);
             }
         }
+
+        for (Map.Entry<String, ?> entry : privateNotes.entrySet()) {
+            String beerId = entry.getKey();
+            if (!beersAlreadyOnTheList.contains(beerId)) {
+                resultHashMap.put(beerId, new MyBeerFromPrivateNote(entry.getValue().toString(), beers.get(beerId)));
+                beersAlreadyOnTheList.add(beerId);
+            }
+
+        }
         ArrayList<MyBeer> result = new ArrayList<>(resultHashMap.values());
         Collections.sort(result, (r1, r2) -> r2.getDate().compareTo(r1.getDate()));
         return result;
@@ -63,10 +74,10 @@ public class MyBeersRepository {
 
     public LiveData<List<MyBeer>> getMyBeers(LiveData<List<Beer>> allBeers, LiveData<List<Wish>> myWishlist,
                                              LiveData<List<Rating>> myRatings, LiveData<List<FridgeItem>> myFridgeItems,
-                                             LiveData<List<Price>> myPrices) {
+                                             LiveData<List<Price>> myPrices, Map<String, ?> privateNotes) {
 
         return map(combineLatest(myWishlist, myRatings, myFridgeItems, myPrices, map(allBeers, Entity::entitiesById)),
-                MyBeersRepository::getMyBeers);
+                (myBeerCombine) -> MyBeersRepository.getMyBeers(myBeerCombine, privateNotes));
     }
 
 
